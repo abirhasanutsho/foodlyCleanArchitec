@@ -42,6 +42,13 @@ dependencies:
   get_it: ^7.6.7
   equatable: ^2.0.5
   dartz: ^0.10.1
+  firebase_core: ^2.27.1
+  firebase_messaging: ^14.7.20
+  http: ^1.2.1
+  fluttertoast: ^8.2.4
+  shared_preferences: ^2.2.2
+  socket_io_client: ^2.0.3+1
+
 
 dev_dependencies:
   flutter_test:

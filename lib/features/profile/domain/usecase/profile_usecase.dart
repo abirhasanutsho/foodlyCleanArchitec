@@ -6,8 +6,8 @@ import 'package:cleanarchitec/features/profile/domain/repository/profile_reposit
 
 class ProfileUseCase extends BaseUseCase {
   @override
-  Future<DataState<ProfileModel>> call() {
+  Future<DataState<ProfileModel>> call( ) {
     ProfileRepository profileRepository = ProfileRepositoryImpl();
     return profileRepository.getProfile();
-  }
+ }
 }

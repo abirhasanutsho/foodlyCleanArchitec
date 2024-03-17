@@ -1,5 +1,4 @@
-import 'dart:async';
-
+import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:cleanarchitec/core/resources/datastate.dart';
 import 'package:cleanarchitec/features/profile/data/model/profile_model.dart';
@@ -22,12 +21,14 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     try {
       DataState<ProfileModel> profileModel =
           await profileRepository.getProfile();
-      if (profileModel != null && profileModel is DataSuccess) {
+      if (profileModel is DataSuccess) {
+
         emit(ProfileDataSuccess(profileModel.data!));
       } else {
         emit(ProfileDataFailed(profileModel.error.toString()));
       }
     } catch (e) {
+      log(e.toString());
       throw Exception(e.toString());
     }
   }

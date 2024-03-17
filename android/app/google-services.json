@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "506247143228",
+    "project_id": "fir-nodejs-98ca4",
+    "storage_bucket": "fir-nodejs-98ca4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:506247143228:android:ace104e42272489e378839",
+        "android_client_info": {
+          "package_name": "com.example.cleanarchitec"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPwCG86nWzInBRG4tab3LlRpYiCWugNQ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
