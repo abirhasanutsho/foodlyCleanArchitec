@@ -79,6 +79,15 @@ class _ChatDetailsState extends State<ChatDetails> {
   }
 
   @override
+  void dispose() {
+    socket.disconnect(); // Disconnect from the socket
+    socket.off("receive-message"); // Unsubscribe from the event
+    socket.off("message-history"); // Unsubscribe from the event
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
