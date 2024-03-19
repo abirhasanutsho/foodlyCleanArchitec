@@ -20,27 +20,29 @@ class Datum {
   String? image;
   String? password;
   String? isOnline;
+  String? fcmToken;
   DateTime? createdAt;
   DateTime? updatedAt;
   int? v;
 
-  Datum({
-    this.id,
-    this.username,
-    this.email,
-    this.image,
-    this.password,
-    this.isOnline,
-    this.createdAt,
-    this.updatedAt,
-    this.v,
-  });
+  Datum(
+      {this.id,
+      this.username,
+      this.email,
+      this.image,
+      this.password,
+      this.isOnline,
+      this.createdAt,
+      this.updatedAt,
+      this.v,
+      this.fcmToken});
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
         id: json["_id"],
         username: json["username"],
         email: json["email"],
         image: json["image"],
+        fcmToken: json["fcmToken"],
         password: json["password"],
         isOnline: json["is_online"],
         createdAt: json["createdAt"] == null
@@ -56,6 +58,7 @@ class Datum {
         "_id": id,
         "username": username,
         "email": email,
+        "fcmToken": fcmToken,
         "image": image,
         "password": password,
         "is_online": isOnline,

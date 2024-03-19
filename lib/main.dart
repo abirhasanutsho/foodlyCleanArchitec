@@ -1,7 +1,8 @@
 import 'dart:async';
-
+import 'dart:developer';
 import 'package:cleanarchitec/core/utils/utils.dart';
 import 'package:cleanarchitec/features/authentication/login/presentation/bloc/login_bloc.dart';
+import 'package:cleanarchitec/features/authentication/register/presentation/bloc/login_bloc.dart';
 import 'package:cleanarchitec/features/chat/presentation/bloc/user_bloc.dart';
 import 'package:cleanarchitec/features/chat/presentation/screens/chatDetails.dart';
 import 'package:cleanarchitec/features/profile/presentation/bloc/profile_bloc.dart';
@@ -10,6 +11,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:overlay_support/overlay_support.dart';
+import 'core/shared_helper/shared_pref.dart';
 import 'features/authentication/login/presentation/screens/login_screen.dart';
 import 'features/chat/presentation/screens/chat_screens.dart';
 import 'features/notification/data/model/push_model.dart';
@@ -25,6 +28,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initiateAccessToken();
   await initaizationUserId();
+  await initiateFcmToken();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -48,7 +52,8 @@ class _AppState extends State<App> {
 
     _messaging.getToken().then((value) {
       if (kDebugMode) {
-        print('Fcm::${value!}');
+        storeFcmToken(value.toString());
+        log("Token FCM__${value}");
       }
     });
 
@@ -135,27 +140,32 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<LoginBloc>(
-          create: (context) => LoginBloc(),
+    return OverlaySupport(
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<LoginBloc>(
+            create: (context) => LoginBloc(),
+          ),
+          BlocProvider<ProfileBloc>(
+            create: (context) => ProfileBloc(),
+          ),
+          BlocProvider<UserBloc>(
+            create: (context) => UserBloc(),
+          ),
+          BlocProvider<RegisterBloc>(
+            create: (context) => RegisterBloc(),
+          ),
+        ],
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          initialRoute: '/',
+          routes: {
+            '/profile': (context) => ProfileScreen(),
+            '/chat': (context) => ChatScreen(),
+            '/chat-details': (context) => const ChatDetails(),
+          },
+          home: accessToken.isEmpty ? const LoginScreen() : ChatScreen(),
         ),
-        BlocProvider<ProfileBloc>(
-          create: (context) => ProfileBloc(),
-        ),
-        BlocProvider<UserBloc>(
-          create: (context) => UserBloc(),
-        ),
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        initialRoute: '/',
-        routes: {
-          '/profile': (context) => ProfileScreen(),
-          '/chat': (context) => ChatScreen(),
-          '/chat-details': (context) => const ChatDetails(),
-        },
-        home: accessToken.isEmpty ? const LoginScreen() : ChatScreen(),
       ),
     );
   }

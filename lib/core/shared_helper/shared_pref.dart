@@ -60,7 +60,7 @@ Future getUserID() async {
   return userId ?? "";
 }
 
-void storeFcmToken(String token) async {
+ storeFcmToken(String token) async {
   SharedPreferences pref = await SharedPreferences.getInstance();
   pref.setString('fcm', token);
 }

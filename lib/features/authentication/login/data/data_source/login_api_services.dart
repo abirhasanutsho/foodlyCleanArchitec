@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 class LoginApiServices {
   Future<LoginModel?> loginUser(String email, String password) async {
     var response = await http.post(
-      Uri.parse("http://192.168.0.100:4000/api/user/login"),
+      Uri.parse("http://192.168.0.107:4000/api/user/login"),
       body: {"email": email, "password": password},
     );
     if (response.statusCode == 200) {

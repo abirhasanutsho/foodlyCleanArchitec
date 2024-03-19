@@ -22,19 +22,16 @@ class User {
   String? username;
   String? email;
   String? isOnline;
+  String? fcmToken;
 
-  User({
-    this.id,
-    this.username,
-    this.email,
-    this.isOnline,
-  });
+  User({this.id, this.username, this.email, this.isOnline, this.fcmToken});
 
   factory User.fromJson(Map<String, dynamic> json) => User(
         id: json["id"],
         username: json["username"],
         email: json["email"],
         isOnline: json["is_online"],
+        fcmToken: json["fcmToken"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -42,5 +39,6 @@ class User {
         "username": username,
         "email": email,
         "is_online": isOnline,
+        "fcmToken": fcmToken,
       };
 }

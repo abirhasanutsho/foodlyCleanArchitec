@@ -1,18 +1,15 @@
-import 'package:cleanarchitec/features/authentication/login/presentation/bloc/login_bloc.dart';
-import 'package:cleanarchitec/features/authentication/login/presentation/bloc/login_event.dart';
-import 'package:cleanarchitec/features/authentication/register/presentation/screens/register_screens.dart';
-import 'package:cleanarchitec/features/profile/presentation/screens/profile_screen.dart';
+import 'package:cleanarchitec/features/authentication/register/presentation/bloc/login_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../bloc/login_state.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatelessWidget {
+  const RegisterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final loginBloc = BlocProvider.of<LoginBloc>(context);
+    final loginBloc = BlocProvider.of<RegisterBloc>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -20,11 +17,11 @@ class LoginScreen extends StatelessWidget {
         surfaceTintColor: Colors.indigo,
         centerTitle: true,
         title: const Text(
-          "Login Screen",
+          "Register Screen",
           style: TextStyle(fontSize: 18, color: Colors.white),
         ),
       ),
-      body: BlocConsumer<LoginBloc, LoginState>(
+      body: BlocConsumer<RegisterBloc, RegisterState>(
         builder: (_, state) {
           if (state is LoginScreenLoading) {
             return const Center(
@@ -37,6 +34,21 @@ class LoginScreen extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.red,
+                    backgroundImage: AssetImage(""),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: TextField(
+                      controller: loginBloc.userNameController,
+                      decoration: const InputDecoration(
+                          labelText: "Enter your username",
+                          hintText: "Enter your username",
+                          border: OutlineInputBorder()),
+                    ),
+                  ),
                   Padding(
                     padding: const EdgeInsets.all(14),
                     child: TextField(
@@ -60,28 +72,15 @@ class LoginScreen extends StatelessWidget {
                   const SizedBox(
                     height: 30,
                   ),
-                  ElevatedButton(
-                      onPressed: () {
-                        loginBloc.add(LoginDataPostEvent());
-                      },
-                      child: Text("Login")),
-                  SizedBox(height: 30,),
-
-
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_)=> RegisterScreen()));
-
-                      },
-                      child: Text("Register")),
+                  ElevatedButton(onPressed: () {}, child: Text("Register")),
                 ],
               ),
             ),
           );
         },
-        listener: (BuildContext context, LoginState state) {
+        listener: (BuildContext context, RegisterState state) {
           if (state is LoginDataSuccess) {
-            Navigator.pushNamed(context, '/chat');
+            Navigator.pop(context);
           }
         },
       ),

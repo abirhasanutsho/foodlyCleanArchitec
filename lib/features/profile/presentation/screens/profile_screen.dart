@@ -40,7 +40,7 @@ class ProfileScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
                           children: [
-                            // Image.network("http://192.168.0.100:4000/api/${state.profileModel.data!.image!}",height: 60,width: 60,),
+                            // Image.network("http://192.168.0.107:4000/api/${state.profileModel.data!.image!}",height: 60,width: 60,),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(

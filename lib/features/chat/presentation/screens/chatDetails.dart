@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:developer';
+import 'package:cleanarchitec/core/shared_helper/shared_pref.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../../../../core/utils/utils.dart';
@@ -18,14 +22,24 @@ class _ChatDetailsState extends State<ChatDetails> {
   List<MessageModel> messageList = [];
   late IO.Socket socket;
 
+  var fcmToken;
+  getFcm() async {
+    await getFcmToken().then((value) {
+      setState(() {
+        fcmToken = value;
+      });
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    getFcm();
     connectSocket();
   }
 
   void connectSocket() {
-    socket = IO.io("http://192.168.0.100:4000", <String, dynamic>{
+    socket = IO.io("http://192.168.0.107:4000", <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
     });
@@ -59,7 +73,37 @@ class _ChatDetailsState extends State<ChatDetails> {
     return ids.join("-");
   }
 
+  Future<void> sendPushNotification({
+    required String fcmToken,
+    required String senderUsername,
+    required String message,
+  }) async {
+    final apiUrl =
+        'http://192.168.0.107:4000/send'; // Replace with your backend URL
+    final headers = {'Content-Type': 'application/json'};
+
+    final body = jsonEncode({
+      'fcmToken': fcmToken,
+      'senderUsername': senderUsername,
+      'message': message,
+    });
+
+    try {
+      final response =
+          await http.post(Uri.parse(apiUrl), headers: headers, body: body);
+      if (response.statusCode == 200) {
+        print('Push notification sent successfully');
+      } else {
+        print('Failed to send push notification: ${response.body}');
+      }
+    } catch (error) {
+      print('Error sending push notification: $error');
+    }
+  }
+
+  // Inside your sendMessage function
   void sendMessage(String message) {
+    // Send message through socket
     socket.emit("message", {
       "roomId": generateRoomId(userId, widget.userModel!.id!),
       "senderId": userId,
@@ -67,7 +111,15 @@ class _ChatDetailsState extends State<ChatDetails> {
       "message": message,
     });
 
+    // Send push notification to recipient
+    sendPushNotification(
+      fcmToken: widget.userModel!.fcmToken.toString(),
+      senderUsername: widget.userModel!.username.toString(),
+      message: message,
+    );
+
     setState(() {
+      // Update UI to show sent message
       messageList.add(MessageModel(
         roomId: generateRoomId(userId, widget.userModel!.id!),
         senderId: userId,
@@ -86,9 +138,10 @@ class _ChatDetailsState extends State<ChatDetails> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
+    log("FCM CC_${fcmToken}");
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Chat with ${widget.userModel!.username}'),
