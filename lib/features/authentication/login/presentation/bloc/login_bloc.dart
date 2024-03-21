@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:cleanarchitec/core/utils/utils.dart';
@@ -32,7 +33,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       if (loginModel is DataSuccess) {
         emit(LoginDataSuccess(loginModel.data));
         _saveLoginModelToPrefs(loginModel.data);
-        _saveLoginModelToPrefs(loginModel.data);
         await setAccessToken(loginModel.data!.token!);
         await setUserId(loginModel.data!.user!.id!);
         await initiateAccessToken();
@@ -47,6 +47,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
             fontSize: 16.0);
       } else {
         emit(LoginDataFailed(loginModel.error.toString()));
+        log(loginModel.error.toString());
+
         Fluttertoast.showToast(
             msg: "${loginModel.data?.message.toString()}",
             toastLength: Toast.LENGTH_SHORT,
@@ -57,7 +59,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
             fontSize: 16.0);
       }
     } catch (e) {
-      throw Exception(e.toString());
+      log(e.toString());
+      emit(LoginDataFailed(e.toString()));
+
     }
   }
 

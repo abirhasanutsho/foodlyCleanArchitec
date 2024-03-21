@@ -1,50 +1,54 @@
 import 'package:equatable/equatable.dart';
 
 class UserListEntity extends Equatable {
-  bool? status;
   List<Datum>? data;
 
   UserListEntity({
-    this.status,
     this.data,
   });
 
+
+
   @override
-  List<Object?> get props => [status, data];
+  List<Object?> get props => [data];
 }
 
 class Datum {
   String? id;
   String? username;
   String? email;
+  String? phone;
+  String? address;
   String? image;
   String? password;
-  String? isOnline;
   String? fcmToken;
   DateTime? createdAt;
   DateTime? updatedAt;
   int? v;
 
-  Datum(
-      {this.id,
-      this.username,
-      this.email,
-      this.image,
-      this.password,
-      this.isOnline,
-      this.createdAt,
-      this.updatedAt,
-      this.v,
-      this.fcmToken});
+  Datum({
+    this.id,
+    this.username,
+    this.email,
+    this.phone,
+    this.address,
+    this.image,
+    this.password,
+    this.fcmToken,
+    this.createdAt,
+    this.updatedAt,
+    this.v,
+  });
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
         id: json["_id"],
         username: json["username"],
         email: json["email"],
+        phone: json["phone"],
+        address: json["address"],
         image: json["image"],
-        fcmToken: json["fcmToken"],
         password: json["password"],
-        isOnline: json["is_online"],
+        fcmToken: json["fcmToken"],
         createdAt: json["createdAt"] == null
             ? null
             : DateTime.parse(json["createdAt"]),
@@ -58,10 +62,11 @@ class Datum {
         "_id": id,
         "username": username,
         "email": email,
-        "fcmToken": fcmToken,
+        "phone": phone,
+        "address": address,
         "image": image,
         "password": password,
-        "is_online": isOnline,
+        "fcmToken": fcmToken,
         "createdAt": createdAt?.toIso8601String(),
         "updatedAt": updatedAt?.toIso8601String(),
         "__v": v,

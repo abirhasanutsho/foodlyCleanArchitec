@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:cleanarchitec/core/utils/utils.dart';
 import 'package:cleanarchitec/features/authentication/login/presentation/bloc/login_bloc.dart';
-import 'package:cleanarchitec/features/authentication/register/presentation/bloc/login_bloc.dart';
 import 'package:cleanarchitec/features/chat/presentation/bloc/user_bloc.dart';
 import 'package:cleanarchitec/features/chat/presentation/screens/chatDetails.dart';
 import 'package:cleanarchitec/features/profile/presentation/bloc/profile_bloc.dart';
@@ -131,10 +130,7 @@ class _AppState extends State<App> {
       if (kDebugMode) {}
 
       if (_notificationInfo != null) {
-        //Route Specific Screen
-      } else {
-        Navigator.pushNamed(context, "/chat");
-      }
+      } else {}
     });
   }
 
@@ -152,19 +148,16 @@ class _AppState extends State<App> {
           BlocProvider<UserBloc>(
             create: (context) => UserBloc(),
           ),
-          BlocProvider<RegisterBloc>(
-            create: (context) => RegisterBloc(),
-          ),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           initialRoute: '/',
           routes: {
             '/profile': (context) => ProfileScreen(),
-            '/chat': (context) => ChatScreen(),
+            '/chat': (context) => const ChatScreen(),
             '/chat-details': (context) => const ChatDetails(),
           },
-          home: accessToken.isEmpty ? const LoginScreen() : ChatScreen(),
+          home: accessToken.isEmpty ? const LoginScreen() : const ChatScreen(),
         ),
       ),
     );

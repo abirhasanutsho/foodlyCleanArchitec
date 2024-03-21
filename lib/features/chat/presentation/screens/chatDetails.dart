@@ -1,17 +1,17 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:cleanarchitec/core/shared_helper/shared_pref.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import '../../../../core/utils/utils.dart';
+import 'package:cleanarchitec/core/shared_helper/shared_pref.dart';
+import 'package:http/http.dart' as http;
+import 'package:cleanarchitec/core/utils/utils.dart';
 import '../../data/model/chatModel.dart';
 import '../../domain/entity/userEntity.dart';
 
 class ChatDetails extends StatefulWidget {
   final Datum? userModel;
 
-  const ChatDetails({Key? key, this.userModel}) : super(key: key);
+  const ChatDetails({super.key, this.userModel});
 
   @override
   State<ChatDetails> createState() => _ChatDetailsState();
@@ -22,14 +22,6 @@ class _ChatDetailsState extends State<ChatDetails> {
   List<MessageModel> messageList = [];
   late IO.Socket socket;
 
-  var fcmToken;
-  getFcm() async {
-    await getFcmToken().then((value) {
-      setState(() {
-        fcmToken = value;
-      });
-    });
-  }
 
   @override
   void initState() {
@@ -39,7 +31,7 @@ class _ChatDetailsState extends State<ChatDetails> {
   }
 
   void connectSocket() {
-    socket = IO.io("http://192.168.0.107:4000", <String, dynamic>{
+    socket = IO.io("http://192.168.12.208:3000", <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
     });
@@ -73,37 +65,15 @@ class _ChatDetailsState extends State<ChatDetails> {
     return ids.join("-");
   }
 
-  Future<void> sendPushNotification({
-    required String fcmToken,
-    required String senderUsername,
-    required String message,
-  }) async {
-    final apiUrl =
-        'http://192.168.0.107:4000/send'; // Replace with your backend URL
-    final headers = {'Content-Type': 'application/json'};
-
-    final body = jsonEncode({
-      'fcmToken': fcmToken,
-      'senderUsername': senderUsername,
-      'message': message,
+  void getFcm() async {
+    await getFcmToken().then((value) {
+      setState(() {
+        fcmToken = value;
+      });
     });
-
-    try {
-      final response =
-          await http.post(Uri.parse(apiUrl), headers: headers, body: body);
-      if (response.statusCode == 200) {
-        print('Push notification sent successfully');
-      } else {
-        print('Failed to send push notification: ${response.body}');
-      }
-    } catch (error) {
-      print('Error sending push notification: $error');
-    }
   }
 
-  // Inside your sendMessage function
   void sendMessage(String message) {
-    // Send message through socket
     socket.emit("message", {
       "roomId": generateRoomId(userId, widget.userModel!.id!),
       "senderId": userId,
@@ -111,40 +81,29 @@ class _ChatDetailsState extends State<ChatDetails> {
       "message": message,
     });
 
-    // Send push notification to recipient
-    sendPushNotification(
-      fcmToken: widget.userModel!.fcmToken.toString(),
-      senderUsername: widget.userModel!.username.toString(),
-      message: message,
-    );
-
-    setState(() {
-      // Update UI to show sent message
-      messageList.add(MessageModel(
-        roomId: generateRoomId(userId, widget.userModel!.id!),
-        senderId: userId,
-        recipientId: widget.userModel!.id!,
-        message: message,
-      ));
-      sendMessageController.clear();
-    });
+    sendMessageController.clear();
   }
 
   @override
   void dispose() {
-    socket.disconnect(); // Disconnect from the socket
-    socket.off("receive-message"); // Unsubscribe from the event
-    socket.off("message-history"); // Unsubscribe from the event
+    socket.disconnect();
+    socket.off("receive-message");
+    socket.off("message-history");
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    log("FCM CC_${fcmToken}");
-
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat with ${widget.userModel!.username}'),
+        backgroundColor: Colors.indigo.withOpacity(.80),
+        surfaceTintColor: Colors.indigo.withOpacity(.80),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(
+          'Chat with ${widget.userModel!.username}',
+          style: const TextStyle(fontSize: 15, color: Colors.white),
+        ),
       ),
       body: Column(
         children: [
@@ -188,14 +147,17 @@ class _ChatDetailsState extends State<ChatDetails> {
                   child: TextField(
                     controller: sendMessageController,
                     decoration: InputDecoration(
-                        hintText: "Send Message", border: OutlineInputBorder()),
+                      hintText: "Send Message",
+                      border: OutlineInputBorder(),
+                    ),
                   ),
                 ),
                 IconButton(
-                    onPressed: () {
-                      sendMessage(sendMessageController.text);
-                    },
-                    icon: Icon(Icons.send))
+                  onPressed: () {
+                    sendMessage(sendMessageController.text);
+                  },
+                  icon: Icon(Icons.send),
+                )
               ],
             ),
           )

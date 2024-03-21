@@ -12,11 +12,12 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.indigo,
-          surfaceTintColor: Colors.indigo,
+          iconTheme: const IconThemeData(color: Colors.white),
+          backgroundColor: Colors.indigo.withOpacity(.80),
+          surfaceTintColor: Colors.indigo.withOpacity(.80),
           elevation: 10,
           centerTitle: true,
-          title: const Text('Profile Screen'),
+          title: const Text('Profile Screen',style: TextStyle(fontWeight: FontWeight.w600,color: Colors.white),),
         ),
         body: BlocBuilder<ProfileBloc, ProfileState>(
           builder: (context, state) {
@@ -40,27 +41,33 @@ class ProfileScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
                           children: [
-                            // Image.network("http://192.168.0.107:4000/api/${state.profileModel.data!.image!}",height: 60,width: 60,),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
+                              child: CircleAvatar(
+                                radius: 60,
+                                backgroundImage: NetworkImage(
+                                    "http://192.168.12.208:3000/${state.profileModel.data?.image}"),
+                              ),
+                            ),                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
                               child: Text(
                                 "${state.profileModel.data?.username}",
+                                style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black,fontSize: 18),
                                 textAlign: TextAlign.center,
+
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                "${state.profileModel.data?.email}",
-                                textAlign: TextAlign.center,
-                              ),
+                            Text(
+                              "${state.profileModel.data?.email}",
+                              textAlign: TextAlign.center,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                "${state.profileModel.data?.isOnline == "0" ? "InActive" : "Active"}",
-                                textAlign: TextAlign.center,
-                              ),
+                            Text(
+                              "${state.profileModel.data?.phone}",
+                              textAlign: TextAlign.center,
+                            ),
+                            Text(
+                              "${state.profileModel.data?.address}",
+                              textAlign: TextAlign.center,
                             ),
                           ],
                         ),

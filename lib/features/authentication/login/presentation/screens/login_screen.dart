@@ -1,19 +1,51 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:cleanarchitec/features/authentication/login/presentation/bloc/login_bloc.dart';
 import 'package:cleanarchitec/features/authentication/login/presentation/bloc/login_event.dart';
-import 'package:cleanarchitec/features/authentication/register/presentation/screens/register_screens.dart';
-import 'package:cleanarchitec/features/profile/presentation/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../bloc/login_state.dart';
+import 'package:http/http.dart'as http;
 
-class LoginScreen extends StatelessWidget {
+
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+
+
+  postLogin()async{
+    var headers = {
+      'Content-Type': 'application/json'
+    };
+    var request = http.Request('POST', Uri.parse('http://localhost:3000/api/user/login'));
+    request.body = json.encode({
+      "email": "abir@gmail.com",
+      "password": "12345678"
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      log("ressss--${response.reasonPhrase}");
+      print(await response.stream.bytesToString());
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     final loginBloc = BlocProvider.of<LoginBloc>(context);
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.indigo,
@@ -65,15 +97,9 @@ class LoginScreen extends StatelessWidget {
                         loginBloc.add(LoginDataPostEvent());
                       },
                       child: Text("Login")),
-                  SizedBox(height: 30,),
-
-
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_)=> RegisterScreen()));
-
-                      },
-                      child: Text("Register")),
+                  SizedBox(
+                    height: 30,
+                  ),
                 ],
               ),
             ),
