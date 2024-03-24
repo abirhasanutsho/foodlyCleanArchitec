@@ -6,9 +6,11 @@ import 'package:cleanarchitec/features/authentication/login/presentation/bloc/lo
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import '../../../../../core/utils/utils.dart';
 import '../bloc/login_state.dart';
-import 'package:http/http.dart'as http;
+import 'package:http/http.dart' as http;
 
+import '../widget/login_component.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,38 +20,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
-
-  postLogin()async{
-    var headers = {
-      'Content-Type': 'application/json'
-    };
-    var request = http.Request('POST', Uri.parse('http://localhost:3000/api/user/login'));
-    request.body = json.encode({
-      "email": "abir@gmail.com",
-      "password": "12345678"
-    });
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      log("ressss--${response.reasonPhrase}");
-      print(await response.stream.bytesToString());
-    }
-    else {
-      print(response.reasonPhrase);
-    }
-  }
-
-
   @override
   Widget build(BuildContext context) {
     final loginBloc = BlocProvider.of<LoginBloc>(context);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.indigo,
-        surfaceTintColor: Colors.indigo,
+        automaticallyImplyLeading: false,
+        backgroundColor: const Color(0xFFF77D8E),
+        surfaceTintColor: const Color(0xFFF77D8E),
         centerTitle: true,
         title: const Text(
           "Login Screen",
@@ -69,35 +47,56 @@ class _LoginScreenState extends State<LoginScreen> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: TextField(
-                      controller: loginBloc.emailController,
-                      decoration: const InputDecoration(
-                          labelText: "Enter your email",
-                          hintText: "Enter your email",
-                          border: OutlineInputBorder()),
-                    ),
+                  customTextField(
+                    controller: loginBloc.emailController,
+                    hintText: 'Email',
+                    iconName: Icons.message_outlined,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: TextField(
-                      controller: loginBloc.passwordController,
-                      decoration: const InputDecoration(
-                          labelText: "Enter your password",
-                          hintText: "Enter your password",
-                          border: OutlineInputBorder()),
+                  PasswordTextField(
+                    hintText: 'Password',
+                    iconName: Icons.lock_outline,
+                    controller: loginBloc.passwordController,
+                  ),
+                  const SizedBox(
+                    height: 60,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      if (loginBloc.emailController.text.isNotEmpty &&
+                          loginBloc.passwordController.text.isNotEmpty) {
+                        loginBloc.add(LoginDataPostEvent());
+                      } else {
+                        showSnackBar(
+                            context: context,
+                            content: "Please fill in all fields.");
+                      }
+                    },
+                    child: Container(
+                      width: 315,
+                      height: 54,
+                      decoration: BoxDecoration(
+                        color: Color(0xFFF77D8E),
+                        borderRadius: BorderRadius.circular(99),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x4c95adfe),
+                            offset: Offset(0, 10),
+                            blurRadius: 30,
+                          ),
+                        ],
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'Login',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(
-                    height: 30,
-                  ),
-                  ElevatedButton(
-                      onPressed: () {
-                        loginBloc.add(LoginDataPostEvent());
-                      },
-                      child: Text("Login")),
-                  SizedBox(
                     height: 30,
                   ),
                 ],

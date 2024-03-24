@@ -1,26 +1,31 @@
-import 'dart:async';
-import 'dart:developer';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cleanarchitec/core/utils/utils.dart';
 import 'package:cleanarchitec/features/authentication/login/presentation/bloc/login_bloc.dart';
 import 'package:cleanarchitec/features/chat/presentation/bloc/user_bloc.dart';
-import 'package:cleanarchitec/features/chat/presentation/screens/chatDetails.dart';
+import 'package:cleanarchitec/features/onBoarding/presentation/screen/on_boarding_screen.dart';
 import 'package:cleanarchitec/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'core/shared_helper/shared_pref.dart';
-import 'features/authentication/login/presentation/screens/login_screen.dart';
 import 'features/chat/presentation/screens/chat_screens.dart';
-import 'features/notification/data/model/push_model.dart';
-import 'features/notification/presentation/screens/notification_bloc_screen.dart';
 import 'features/profile/presentation/screens/profile_screen.dart';
 import 'firebase_options.dart';
 
+@pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print("Handling a background message: ${message.messageId}");
+  await AwesomeNotifications().createNotification(
+    content: NotificationContent(
+      id: message.hashCode,
+      channelKey: "high_importance_channel",
+      title: message.data['title'],
+      body: message.data['body'],
+      notificationLayout: NotificationLayout.BigPicture,
+      hideLargeIconOnExpand: true,
+    ),
+  );
 }
 
 void main() async {
@@ -28,9 +33,25 @@ void main() async {
   await initiateAccessToken();
   await initaizationUserId();
   await initiateFcmToken();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  AwesomeNotifications().initialize(null, [
+    NotificationChannel(
+        channelKey: "channelKey",
+        channelName: "channelName",
+        channelDescription: "channelDescription",
+        defaultColor: Colors.red,
+        ledColor: Colors.white,
+        importance: NotificationImportance.Max,
+        locked: true,
+        channelShowBadge: true,
+        defaultRingtoneType: DefaultRingtoneType.Ringtone),
+  ]);
+
   runApp(const App());
 }
 
@@ -42,96 +63,70 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  late final FirebaseMessaging _messaging;
-  PushNotification? _notificationInfo;
-
-  void registerNotification() async {
-    await Firebase.initializeApp();
-    _messaging = FirebaseMessaging.instance;
-
-    _messaging.getToken().then((value) {
-      if (kDebugMode) {
-        storeFcmToken(value.toString());
-        log("Token FCM__${value}");
-      }
-    });
-
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    NotificationSettings settings = await _messaging.requestPermission(
-      alert: true,
-      badge: true,
-      provisional: false,
-      sound: true,
-    );
-
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print('User granted permission');
-
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        print(
-            'Message title: ${message.notification?.title}, body: ${message.notification?.body}, data: ${message.data}');
-
-        // Parse the message received
-        PushNotification notification = PushNotification(
-          title: message.notification?.title,
-          body: message.notification?.body,
-          dataTitle: message.data['title'],
-          dataBody: message.data['body'],
-          path: message.data['path'],
-        );
-        notificationBloc.notification(notification);
-      });
-    } else {
-      print('User declined or has not accepted permission');
-    }
-  }
-
-  checkForInitialMessage() async {
-    await Firebase.initializeApp();
-    RemoteMessage? initialMessage =
-        await FirebaseMessaging.instance.getInitialMessage();
-
-    if (initialMessage != null) {
-      PushNotification notification = PushNotification(
-          title: initialMessage.notification?.title,
-          body: initialMessage.notification?.body,
-          dataTitle: initialMessage.data['title'],
-          dataBody: initialMessage.data['body'],
-          path: initialMessage.data['path']);
-
-      print("Abir${notification.path}");
-
-      setState(() {
-        _notificationInfo = notification;
-      });
-    }
-  }
-
   @override
   void initState() {
-    super.initState();
-    registerNotification();
-    checkForInitialMessage();
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      PushNotification notification = PushNotification(
-        title: message.notification?.title,
-        body: message.notification?.body,
-        dataTitle: message.data['title'],
-        dataBody: message.data['body'],
-        path: message.data['path'],
-      );
-
-      setState(() {
-        _notificationInfo = notification;
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
+      FirebaseMessaging.onMessage.listen((event) {
+        if (event.data['messageType'] == "call") {
+          AwesomeNotifications().createNotification(
+            content: NotificationContent(
+              id: 123,
+              channelKey: "channelKey",
+              color: Colors.white,
+              title: event.notification!.title,
+              body: event.notification!.body,
+              category: NotificationCategory.Call,
+              wakeUpScreen: true,
+              fullScreenIntent: true,
+              autoDismissible: false,
+              backgroundColor: Colors.orange,
+              displayOnBackground: true,
+              displayOnForeground: true,
+            ),
+            actionButtons: [
+              NotificationActionButton(
+                key: 'REJECT',
+                label: 'Reject call',
+                color: Colors.red,
+                autoDismissible: true,
+              ),
+              NotificationActionButton(
+                key: 'ACCEPT',
+                label: 'Accept call',
+                color: Colors.green,
+                autoDismissible: true,
+              ),
+            ],
+          );
+        } else {
+          // Handle other types of notifications
+          AwesomeNotifications().createNotification(
+            content: NotificationContent(
+              id: 123,
+              channelKey: "channelKey",
+              color: Colors.white,
+              title: event.notification!.title,
+              body: event.notification!.body,
+              category: NotificationCategory
+                  .Message, // Change to appropriate category
+            ),
+          );
+        }
       });
-    });
 
-    Timer(const Duration(seconds: 3), () async {
-      if (kDebugMode) {}
 
-      if (_notificationInfo != null) {
-      } else {}
+      AwesomeNotifications().setListeners(
+          onActionReceivedMethod:
+              NotificationControllerPush.onActionReceivedMethod,
+          onNotificationCreatedMethod:
+              NotificationControllerPush.onNotificationCreatedMethod,
+          onNotificationDisplayedMethod:
+              NotificationControllerPush.onNotificationDisplayedMethod,
+          onDismissActionReceivedMethod:
+              NotificationControllerPush.onDismissActionReceivedMethod);
+      setState(() {});
     });
+    super.initState();
   }
 
   @override
@@ -149,17 +144,40 @@ class _AppState extends State<App> {
             create: (context) => UserBloc(),
           ),
         ],
-        child: MaterialApp(
+        child: GetMaterialApp(
+          theme: ThemeData(
+            scaffoldBackgroundColor: const Color(0xFFEEF1F8),
+            primarySwatch: Colors.blue,
+            fontFamily: "Intel",
+            inputDecorationTheme: const InputDecorationTheme(
+              filled: true,
+              fillColor: Colors.white,
+              errorStyle: TextStyle(height: 0),
+              border: defaultInputBorder,
+              enabledBorder: defaultInputBorder,
+              focusedBorder: defaultInputBorder,
+              errorBorder: defaultInputBorder,
+            ),
+          ),
           debugShowCheckedModeBanner: false,
           initialRoute: '/',
           routes: {
             '/profile': (context) => ProfileScreen(),
             '/chat': (context) => const ChatScreen(),
-            '/chat-details': (context) => const ChatDetails(),
           },
-          home: accessToken.isEmpty ? const LoginScreen() : const ChatScreen(),
+          home: accessToken.isEmpty
+              ? const OnboardingScreen()
+              : const ChatScreen(),
         ),
       ),
     );
   }
 }
+
+const defaultInputBorder = OutlineInputBorder(
+  borderRadius: BorderRadius.all(Radius.circular(16)),
+  borderSide: BorderSide(
+    color: Color(0xFFDEE3F2),
+    width: 1,
+  ),
+);

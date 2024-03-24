@@ -1,3 +1,16 @@
+buildscript {
+    ext.kotlin_version = '1.9.20' // Update to the latest version here
+
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.3.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version" // Update Kotlin plugin version
+    }
+}
+
 allprojects {
     repositories {
         google()
@@ -9,6 +22,7 @@ rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
+
 subprojects {
     project.evaluationDependsOn(':app')
 }

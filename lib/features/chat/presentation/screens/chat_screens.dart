@@ -1,4 +1,5 @@
 import 'package:cleanarchitec/core/utils/utils.dart';
+import 'package:cleanarchitec/features/MapScreen/presentation/screens/map_screen.dart';
 import 'package:cleanarchitec/features/chat/presentation/bloc/user_bloc.dart';
 import 'package:cleanarchitec/features/chat/presentation/bloc/user_event.dart';
 import 'package:cleanarchitec/features/chat/presentation/bloc/user_state.dart';
@@ -6,15 +7,16 @@ import 'package:cleanarchitec/features/chat/presentation/screens/chatDetails.dar
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:get/route_manager.dart';
 
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    BlocProvider.of<UserBloc>(context).add(UserEventDataFetch());
-
+    BlocProvider.of<UserBloc>(context, listen: false).add(UserEventDataFetch());
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         actions: [
@@ -24,15 +26,26 @@ class ChatScreen extends StatelessWidget {
             },
             icon: const Icon(
               Icons.person_outline,
+              size: 30,
               color: Colors.white,
             ),
-          )
+          ),
+          IconButton(
+            onPressed: () {
+              Get.to(const MapScreen());
+            },
+            icon: const Icon(
+              Icons.location_on_outlined,
+              size: 30,
+              color: Colors.white,
+            ),
+          ),
         ],
-        backgroundColor: Colors.indigo.withOpacity(.80),
-        surfaceTintColor: Colors.indigo.withOpacity(.80),
+        backgroundColor: const Color(0xFFF77D8E),
+        surfaceTintColor: const Color(0xFFF77D8E),
         centerTitle: true,
         title: const Text(
-          "Chat",
+          "User List",
           style: TextStyle(fontSize: 18, color: Colors.white),
         ),
       ),
@@ -56,10 +69,13 @@ class ChatScreen extends StatelessWidget {
                   return Container();
                 } else {
                   return InkWell(
-                    onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (_)=>  ChatDetails(
-                        userModel: data,
-                      )));
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => ChatDetails(
+                                    userModel: data,
+                                  )));
                     },
                     child: Padding(
                       padding:
@@ -77,7 +93,7 @@ class ChatScreen extends StatelessWidget {
                                 child: CircleAvatar(
                                   radius: 25,
                                   backgroundImage: NetworkImage(
-                                      "http://192.168.12.208:3000/${data?.image}"),
+                                      "http://192.168.0.102:3000/${data?.image}"),
                                 ),
                               ),
                               Column(

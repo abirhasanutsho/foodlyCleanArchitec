@@ -1,4 +1,4 @@
-import 'package:cleanarchitec/features/chat/domain/entity/userEntity.dart';
+import '../../domain/entity/userEntity.dart';
 
 class UserModel extends UserListEntity {
   UserModel({
